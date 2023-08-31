@@ -1,7 +1,8 @@
 'use strict';
+const querystring = require("querystring");
 const mysql=require('mysql');
 const connection=mysql.createConnection({
-  host:'database-1.cz1ybvsh329r.us-east-1.rds.amazonaws.comñ',
+  host:'database-1.cz1ybvsh329r.us-east-1.rds.amazonaws.com',
   user:'admin',
 port:"3306",
 password:'12345678',
@@ -9,12 +10,13 @@ database:'data base1',
 });
 
 module.exports.hacerpedido = async (event) => {
+  const pedido = querystring.parse(event["body"])
   return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: 'Go Serverless v1.0! Your function executed successfully!',
-        input: event,
+        message: "exitoso",
+        input: 'orden ${pedido.name}',
       },
       null,
       2

@@ -64,7 +64,7 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello handler: handler.pedidos
+    handler: handler.hacerpedido
     events:
      - http:
          method: POST
@@ -74,7 +74,7 @@ functions:
     events:
      - http:
          method: GET
-         path: /pedido
+         path: /obtenerpedido
 
 
 #    The following are a few example events you can configure
