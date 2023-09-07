@@ -9,7 +9,7 @@ const connection=mysql.createConnection({
   database:'proyectorestaurante',
 });
 
-module.exports.hacerPedido = async (event) => {
+module.exports.hacerpedido = async (event) => {
   const pedidos = querystring.parse(event["body"])
   await new Promise((resolve, reject) => {
   const queryclient = "CALL insert_pedidos(?,?,?,?,?);";
@@ -41,11 +41,11 @@ module.exports.hacerPedido = async (event) => {
   // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
 };
 
-module.exports.obtenerPedido = async (event) => {
-  const pedido = querystring.parse(event["body"])
-  const queryclient = "SELECT * FROM proyectorestaurante.pedidos where id=?;";
-  const consulta = await new Promise((resolve, reject) => {
-     connection.query(queryclient,[pedido.id], (err, results) => {
+module.exports.obtenerpedido = async (event) => {
+  const pedidos = event.queryStringParameters.id;
+  const queryPedido = "SELECT * FROM proyectorestaurante.Pedidos WHERE id= ?";
+  const results = await new Promise((resolve, reject) => {
+    connection.query(queryPedido, [pedidos], (err, results) => {
       if (err) {
         reject(err);
       } else {
@@ -53,21 +53,16 @@ module.exports.obtenerPedido = async (event) => {
       }
     });
   });
-  connection.end();
   return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: "exitoso",
-        pedido: consulta,
+        pedido: results[0],
       },
       null,
       2
     ),
   };
-  
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
 };
 
 
