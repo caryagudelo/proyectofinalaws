@@ -35,7 +35,7 @@ module.exports.hacerpedido = async (event) => {
   };
 await SQS.sendMessage(params).promise();
 };
-await sqs.sendMessage(params).promise();
+
 const paramsEmail = {
   Source: "cary.agudelo26894@ucaldas.edu.co", 
   Destination: {

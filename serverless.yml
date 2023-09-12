@@ -1,5 +1,4 @@
 service: mi-proyectofinal-aws
-
 frameworkVersion: "3"
 
 provider:
@@ -8,8 +7,6 @@ provider:
   region: us-east-1
   apiGateway:
     shouldStartNameWithService: true
-
-
 
 functions:
   hacerpedido:
@@ -24,33 +21,43 @@ functions:
       - http:
           method: GET
           path: /obtenerpedido
-
-
-
-
-// SE CREA EN SERVERLESS DEL BUCKET EN AWS CON LA CONDICION DE BORRAR LOS PEDIDOS CADA DOS DIAS
+    iamRoleStatements:
+         - Effect: Allow
+           Action:
+           - s3:PutObject
+           - s3:GetObject
+         Resource:
+        
+            - Effect: Allow
+            Action:
+            - sqs:SendMessage
+            Resource:
+        
+           - Effect: Allow
+           Action:
+           - ses:SendEmail
+           - ses:SendRawEmail
+           Resource: "*"
 
 resources:
   Resources:
-    Type: AWS::RDS::Bucket
-    Properties:
-      BucketName: order-backup-bucket--proyectorestaurante
-      LifecycleConfiguration:
-        Rules:
-          - Id: DeleteAfterrTwoDays
-            Status: enabled
-            ExpirationInDays: 2
+    Restaurante:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: order-backup-bucket-proyectorestaurante
+        LifecycleConfiguration:
+          Rules:
+            - Id: DeleteAfterTwoDays
+              Status: enabled
+              ExpirationInDays: 2
 
-
-// se crea serverlees de la tabla de bases de datos con motor mysql
-
-  Database-1:
+  Database1:
     Type: AWS::RDS::DBInstance
     Properties:
       DBName: proyectorestaurante
       AllocatedStorage: 20
       DBInstanceClass: db.t2.micro
-      engine: MySQL
+      Engine: MySQL
       EngineVersion: 5.7
       MasterUsername: admin
       MasterUserPassword: 12345678
@@ -59,9 +66,6 @@ resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - sg-0240f2da98f1edf45
-
-
-  // Regla de seguridad de grupo de seguridad VCP
 
   RDSSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
@@ -72,19 +76,12 @@ resources:
       ToPort: 3306
       CidrIp: 0.0.0.0/0
 
-
-    //se crea cola con retraso de 15 segundos
-
   queue-database-1:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: order-queue
       DelaySeconds: 15
-      MessageRetentionPeriod: 1274568
-
-
-
-
+      MessageRetentionPeriod: 864000
 
 
 
