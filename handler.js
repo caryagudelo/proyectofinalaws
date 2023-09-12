@@ -1,4 +1,5 @@
 'use strict';
+const aws=require('aws-sdk');
 const querystring = require("querystring")
 const mysql=require('mysql');
 const connection=mysql.createConnection({
@@ -21,26 +22,56 @@ module.exports.hacerpedido = async (event) => {
       }
     });
   });
-  return {
-    statusCode: 200,
-    body: JSON.stringify(
-      {
-        message: "exitoso",
-        cliente_id: pedidos.cliente_id,
-        producto_id: pedidos.producto_id,
-        cantidad_und: pedidos.cantidad_und,
-        valorUnidad: pedidos.valorUnidad,
-        valorTotal: pedidos.valorTotal,  
-      },
-      null,
-      2
-    ),
+  const messageBody = {
+    Cliente: cliente_id,
+    Producto: producto_id,
+    Cantidad: pedido.cantidad_und,
+    "Valor Total": pedido.valorTotal,
   };
-  connection.end();
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
+  // Configura los parámetros del mensaje
+  const params = {
+    MessageBody: JSON.stringify(messageBody),
+    QueueUrl: 'URL-de-tu-cola-SQS', // Reemplaza con la URL de tu cola SQS
+  };
+await SQS.sendMessage(params).promise();
 };
-
+await sqs.sendMessage(params).promise();
+const paramsEmail = {
+  Source: "cary.agudelo26894@ucaldas.edu.co", 
+  Destination: {
+    ToAddresses: [clienteEmail],
+  },
+  Message: {
+    Subject: {
+      Data: "Detalles del pedido",
+    },
+    Body: {
+      Text: {
+          
+            Data: `Detalles del pedido:\n\nCliente: ${cliente_id}\nProducto: ${producto_id}\nValor unitario: ${producto_valor}\nCantidad: ${pedido.cantidad_und}\nValor Total: ${pedido.valorTotal}`,
+          },
+        },
+      },
+    };
+    await ses.sendEmail(paramsEmail).promise();
+    return {
+      statusCode: 200,
+      body: JSON.stringify(
+        {
+          message: "exitoso",
+          cliente_id: pedido.cliente_id,
+          producto_id: pedido.producto_id,
+          cantidad_und: pedido.cantidad_und,
+          valorUnidad: pedido.valorUnidad,
+          valorTotal: pedido.valorTotal,  
+        },
+        null,
+        2
+      ),
+    };
+    connection.end();
+  
+  
 module.exports.obtenerpedido = async (event) => {
   const pedidos = event.queryStringParameters.id;
   const queryPedido = "SELECT * FROM proyectorestaurante.Pedidos WHERE id= ?";
